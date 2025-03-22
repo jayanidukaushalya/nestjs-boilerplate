@@ -1,0 +1,9 @@
+{
+  "cSpell.words": [],
+  "conventionalCommits.scopes": ["auth"],
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit",
+    "source.fixAll": "explicit",
+    "source.organizeImports": "explicit"
+  }
+}
