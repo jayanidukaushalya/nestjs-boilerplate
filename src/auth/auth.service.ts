@@ -1,65 +1,69 @@
-import {
-  ClassSerializerInterceptor,
-  Injectable,
-  SerializeOptions,
-  UseInterceptors,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import * as bcrypt from 'bcrypt';
 import { AlreadyExistsError } from 'src/common/exceptions/already-exists-exception';
 import { NotFoundError } from 'src/common/exceptions/not-found-exception';
+import { UnauthorizedError } from 'src/common/exceptions/unauthorized-exception copy';
 import { UserEntity } from 'src/user/user.entity';
+import { UserService } from 'src/user/user.service';
 import { Repository } from 'typeorm';
 import { ChangePasswordRequestBodyDto } from './dtos/change-password.dto';
 import { LoginRequestBodyDto } from './dtos/login.dto';
 import { RegisterRequestDto } from './dtos/register.dto';
 
 @Injectable()
-@UseInterceptors(ClassSerializerInterceptor)
-@SerializeOptions({ strategy: 'excludeAll' })
 export class AuthService {
-  constructor(@InjectRepository(UserEntity) private readonly userRepo: Repository<UserEntity>) {}
+  constructor(
+    private readonly userService: UserService,
+    @InjectRepository(UserEntity) private readonly userRepo: Repository<UserEntity>,
+  ) {}
 
   async login(body: LoginRequestBodyDto) {
-    const user = await this.findUserByUsername(body.username);
+    const user = await this.userService.findUserByUsername(body.username);
 
     if (!user) {
-      throw new NotFoundError();
+      throw new UnauthorizedError();
+    }
+
+    if (!(await this.comparePassword(body.password, user.password))) {
+      throw new UnauthorizedError();
     }
 
     return user;
   }
 
   async register(body: RegisterRequestDto) {
-    let user = await this.findUserByUsername(body.username);
+    let user = await this.userService.findUserByUsername(body.username);
 
     if (user) {
       throw new AlreadyExistsError();
     }
+
+    const hashedPassword = await this.hashPassword(body.password);
+    body.password = hashedPassword;
 
     user = this.userRepo.create(body);
     return this.userRepo.save(user);
   }
 
   async changePassword(id: string, body: ChangePasswordRequestBodyDto) {
-    const user = await this.findUserById(id);
+    const user = await this.userService.findById(id);
 
     if (!user) {
       throw new NotFoundError();
     }
 
-    user.password = body.password;
+    const hashedPassword = await this.hashPassword(body.password);
+    user.password = hashedPassword;
+
     return this.userRepo.save(user);
   }
 
-  private async findUserByUsername(username: string) {
-    return this.userRepo.findOne({
-      where: {
-        username,
-      },
-    });
+  private async hashPassword(password: string) {
+    return bcrypt.hash(password, 10);
   }
 
-  private async findUserById(id: string) {
-    return this.userRepo.findOneBy({ id });
+  private async comparePassword(password: string, hash: string) {
+    return bcrypt.compare(password, hash);
   }
 }

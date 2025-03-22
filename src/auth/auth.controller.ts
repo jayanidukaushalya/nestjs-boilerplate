@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   ConflictException,
   Controller,
@@ -14,6 +15,7 @@ import { ERROR_MESSAGES } from 'src/common/constants/error-messages';
 import { FindByIdRequestParamDto } from 'src/common/dtos/find-by-id.dto';
 import { AlreadyExistsError } from 'src/common/exceptions/already-exists-exception';
 import { NotFoundError } from 'src/common/exceptions/not-found-exception';
+import { UnauthorizedError } from 'src/common/exceptions/unauthorized-exception copy';
 import { AuthService } from './auth.service';
 import { ChangePasswordRequestBodyDto } from './dtos/change-password.dto';
 import { LoginRequestBodyDto } from './dtos/login.dto';
@@ -30,8 +32,8 @@ export class AuthController {
     try {
       return await this.authService.login(body);
     } catch (error) {
-      if (error instanceof NotFoundError) {
-        throw new NotFoundException();
+      if (error instanceof UnauthorizedError) {
+        throw new BadRequestException('Invalid Credentials');
       }
 
       throw error;
