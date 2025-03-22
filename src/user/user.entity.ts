@@ -1,16 +1,11 @@
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import { Exclude } from 'class-transformer';
+import { BaseEntity } from 'src/common/entity/base.entity';
+import { Column, Entity } from 'typeorm';
 
-@Entity()
-export class User {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
+@Entity({
+  name: 'user',
+})
+export class UserEntity extends BaseEntity {
   @Column({
     length: 20,
     unique: true,
@@ -18,11 +13,18 @@ export class User {
   username: string;
 
   @Column()
+  @Exclude()
   password: string;
 
-  @CreateDateColumn()
-  createdAt: Date;
+  @Column({
+    length: 60,
+    nullable: true,
+  })
+  firstName: string;
 
-  @UpdateDateColumn()
-  updatedAt: Date;
+  @Column({
+    length: 60,
+    nullable: true,
+  })
+  lastName: string;
 }

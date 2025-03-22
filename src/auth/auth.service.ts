@@ -1,16 +1,23 @@
-import { Injectable } from '@nestjs/common';
+import {
+  ClassSerializerInterceptor,
+  Injectable,
+  SerializeOptions,
+  UseInterceptors,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AlreadyExistsError } from 'src/common/exceptions/already-exists-exception';
 import { NotFoundError } from 'src/common/exceptions/not-found-exception';
-import { User } from 'src/user/user.entity';
+import { UserEntity } from 'src/user/user.entity';
 import { Repository } from 'typeorm';
 import { ChangePasswordRequestBodyDto } from './dtos/change-password.dto';
 import { LoginRequestBodyDto } from './dtos/login.dto';
 import { RegisterRequestDto } from './dtos/register.dto';
 
 @Injectable()
+@UseInterceptors(ClassSerializerInterceptor)
+@SerializeOptions({ strategy: 'excludeAll' })
 export class AuthService {
-  constructor(@InjectRepository(User) private readonly userRepo: Repository<User>) {}
+  constructor(@InjectRepository(UserEntity) private readonly userRepo: Repository<UserEntity>) {}
 
   async login(body: LoginRequestBodyDto) {
     const user = await this.findUserByUsername(body.username);
