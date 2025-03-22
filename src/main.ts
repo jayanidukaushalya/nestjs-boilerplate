@@ -20,8 +20,10 @@ async function bootstrap() {
   });
 
   const config = new DocumentBuilder()
-    .setTitle('Orient Hardware POS API')
-    .setDescription('Comprehensive API documentation for the Orient Hardware POS system.')
+    .setTitle('NestJS Boilerplate API')
+    .setDescription(
+      'Boilerplate API for NestJS applications, providing a robust starting point for building scalable and efficient systems.',
+    )
     .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup(`${API_PREFIX}/docs`, app, documentFactory);

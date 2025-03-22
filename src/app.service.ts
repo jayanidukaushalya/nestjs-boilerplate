@@ -9,7 +9,7 @@ export class AppService {
 
   getHealthCheck() {
     return {
-      message: 'Welcome to the Orient Hardware POS API',
+      message: 'Welcome to the NestJS Boilerplate API',
       version: this.configService.get<IBaseConfig>('base')?.version,
       environment: this.configService.get<IBaseConfig>('base')?.env,
     };
