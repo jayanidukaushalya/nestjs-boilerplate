@@ -4,3 +4,5 @@ export enum ENVIRONMENT {
   PRODUCTION = 'production',
   TEST = 'test',
 }
+
+export const API_PREFIX = 'api';

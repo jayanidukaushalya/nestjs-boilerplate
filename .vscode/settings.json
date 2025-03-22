@@ -1,5 +1,7 @@
 {
-  "cSpell.words": [],
+  "cSpell.words": [
+    "dtos"
+  ],
   "conventionalCommits.scopes": ["auth"],
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit",

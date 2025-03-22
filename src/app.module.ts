@@ -1,36 +1,37 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { AuthController } from './auth/auth.controller';
-import { BrandController } from './brand/brand.controller';
-import { CategoryController } from './category/category.controller';
-import { appConfig } from './config/app.config';
+import { AuthModule } from './auth/auth.module';
 import { authConfig } from './config/auth.config';
-import { appConfigSchema } from './config/config.schema';
+import { appConfig } from './config/base.config';
+import { appConfigSchema, IAppConfig } from './config/config.schema';
 import { dbConfig } from './config/db.config';
-import { ProductController } from './product/product.controller';
-import { UserController } from './user/user.controller';
+import { User } from './user/user.entity';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       load: [appConfig, dbConfig, authConfig],
       envFilePath: `.env.${process.env.NODE_ENV}`,
+      isGlobal: true,
       validationSchema: appConfigSchema,
       validationOptions: {
         abortEarly: true,
       },
     }),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService<IAppConfig>) => ({
+        ...configService.get<TypeOrmModuleOptions>('db'),
+        entities: [User],
+      }),
+    }),
+    AuthModule,
   ],
-  controllers: [
-    AppController,
-    CategoryController,
-    BrandController,
-    ProductController,
-    UserController,
-    AuthController,
-  ],
+  controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {}

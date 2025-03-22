@@ -1,11 +1,11 @@
+import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import * as Joi from 'joi';
-import { IAppConfig } from './app.config';
 import { IAuthConfig } from './auth.config';
-import { IDBConfig } from './db.config';
+import { IBaseConfig } from './base.config';
 
-export interface IConfigSchema {
-  app: IAppConfig;
-  database: IDBConfig;
+export interface IAppConfig {
+  base: IBaseConfig;
+  db: TypeOrmModuleOptions;
   auth: IAuthConfig;
 }
 
