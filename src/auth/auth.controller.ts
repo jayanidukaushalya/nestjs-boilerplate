@@ -7,6 +7,7 @@ import {
   NotFoundException,
   Post,
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { ERROR_MESSAGES } from 'src/common/constants/error-messages';
 import { AlreadyExistsError } from 'src/common/exceptions/already-exists-exception';
 import { NotFoundError } from 'src/common/exceptions/not-found-exception';
@@ -15,6 +16,7 @@ import { LoginDto } from './dtos/login.dto';
 import { RegisterDto } from './dtos/register.dto';
 
 @Controller('auth')
+@ApiTags('Authentication')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
