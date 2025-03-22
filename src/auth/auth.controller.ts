@@ -5,15 +5,19 @@ import {
   HttpCode,
   HttpStatus,
   NotFoundException,
+  Param,
+  Patch,
   Post,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { ERROR_MESSAGES } from 'src/common/constants/error-messages';
+import { FindByIdRequestParamDto } from 'src/common/dtos/find-by-id.dto';
 import { AlreadyExistsError } from 'src/common/exceptions/already-exists-exception';
 import { NotFoundError } from 'src/common/exceptions/not-found-exception';
 import { AuthService } from './auth.service';
-import { LoginDto } from './dtos/login.dto';
-import { RegisterDto } from './dtos/register.dto';
+import { ChangePasswordRequestBodyDto } from './dtos/change-password.dto';
+import { LoginRequestBodyDto } from './dtos/login.dto';
+import { RegisterRequestDto } from './dtos/register.dto';
 
 @Controller('auth')
 @ApiTags('Authentication')
@@ -22,7 +26,7 @@ export class AuthController {
 
   @Post('/login')
   @HttpCode(HttpStatus.OK)
-  async login(@Body() body: LoginDto) {
+  async login(@Body() body: LoginRequestBodyDto) {
     try {
       return await this.authService.login(body);
     } catch (error) {
@@ -36,12 +40,29 @@ export class AuthController {
 
   @Post('/register')
   @HttpCode(HttpStatus.CREATED)
-  async register(@Body() body: RegisterDto) {
+  async register(@Body() body: RegisterRequestDto) {
     try {
       return await this.authService.register(body);
     } catch (error) {
       if (error instanceof AlreadyExistsError) {
         throw new ConflictException(ERROR_MESSAGES.ALREADY_EXISTS);
+      }
+
+      throw error;
+    }
+  }
+
+  @Patch('/change-password/:id')
+  @HttpCode(HttpStatus.OK)
+  async changePassword(
+    @Param() param: FindByIdRequestParamDto,
+    @Body() body: ChangePasswordRequestBodyDto,
+  ) {
+    try {
+      return await this.authService.changePassword(param.id, body);
+    } catch (error) {
+      if (error instanceof NotFoundError) {
+        throw new NotFoundException();
       }
 
       throw error;

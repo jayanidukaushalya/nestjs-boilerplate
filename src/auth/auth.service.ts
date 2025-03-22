@@ -4,14 +4,16 @@ import { AlreadyExistsError } from 'src/common/exceptions/already-exists-excepti
 import { NotFoundError } from 'src/common/exceptions/not-found-exception';
 import { User } from 'src/user/user.entity';
 import { Repository } from 'typeorm';
-import { LoginDto } from './dtos/login.dto';
+import { ChangePasswordRequestBodyDto } from './dtos/change-password.dto';
+import { LoginRequestBodyDto } from './dtos/login.dto';
+import { RegisterRequestDto } from './dtos/register.dto';
 
 @Injectable()
 export class AuthService {
   constructor(@InjectRepository(User) private readonly userRepo: Repository<User>) {}
 
-  async login(body: LoginDto) {
-    const user = await this.findByUsername(body.username);
+  async login(body: LoginRequestBodyDto) {
+    const user = await this.findUserByUsername(body.username);
 
     if (!user) {
       throw new NotFoundError();
@@ -20,8 +22,8 @@ export class AuthService {
     return user;
   }
 
-  async register(body: LoginDto) {
-    let user = await this.findByUsername(body.username);
+  async register(body: RegisterRequestDto) {
+    let user = await this.findUserByUsername(body.username);
 
     if (user) {
       throw new AlreadyExistsError();
@@ -31,11 +33,26 @@ export class AuthService {
     return this.userRepo.save(user);
   }
 
-  private async findByUsername(username: string) {
-    return await this.userRepo.findOne({
+  async changePassword(id: string, body: ChangePasswordRequestBodyDto) {
+    const user = await this.findUserById(id);
+
+    if (!user) {
+      throw new NotFoundError();
+    }
+
+    user.password = body.password;
+    return this.userRepo.save(user);
+  }
+
+  private async findUserByUsername(username: string) {
+    return this.userRepo.findOne({
       where: {
         username,
       },
     });
+  }
+
+  private async findUserById(id: string) {
+    return this.userRepo.findOneBy({ id });
   }
 }

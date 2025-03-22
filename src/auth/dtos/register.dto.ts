@@ -1,6 +1,6 @@
 import { IsNotEmpty, IsString, Length, MaxLength } from 'class-validator';
 
-export class RegisterDto {
+export class RegisterRequestDto {
   @IsString()
   @IsNotEmpty()
   @MaxLength(20)

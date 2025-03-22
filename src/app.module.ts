@@ -9,6 +9,7 @@ import { appConfig } from './config/base.config';
 import { appConfigSchema, IAppConfig } from './config/config.schema';
 import { dbConfig } from './config/db.config';
 import { User } from './user/user.entity';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { User } from './user/user.entity';
       }),
     }),
     AuthModule,
+    UserModule,
   ],
   controllers: [AppController],
   providers: [AppService],
