@@ -24,7 +24,7 @@ export class AuthService {
     @InjectRepository(User) private readonly userRepo: Repository<User>,
   ) {}
 
-  async login(body: LoginRequestBodyDto): Promise<User | null> {
+  async validateUser(body: LoginRequestBodyDto): Promise<User | null> {
     const user = await this.userService.findUserByUsername(body.username);
 
     if (!user || !(await this.comparePassword(body.password, user.password))) return null;
@@ -64,34 +64,27 @@ export class AuthService {
   }
 
   async generateTokens(
-    id: string,
-    username: string,
+    payload: IJwtPayload,
   ): Promise<{ accessToken: string; refreshToken: string }> {
-    const payload: IJwtPayload = { sub: id, username };
-
     const [accessToken, refreshToken] = await Promise.all([
-      this.jwtService.signAsync(payload, {
-        secret: this.configService.get<IAuthConfig>('auth')?.accessToken.secret,
-        expiresIn: this.configService.get<IAuthConfig>('auth')?.accessToken.expiresIn,
-      }),
-      this.jwtService.signAsync(payload, {
-        secret: this.configService.get<IAuthConfig>('auth')?.refreshToken.secret,
-        expiresIn: this.configService.get<IAuthConfig>('auth')?.refreshToken.expiresIn,
-      }),
+      this.generateAccessToken(payload),
+      this.generateRefreshToken(payload),
     ]);
 
     return { accessToken, refreshToken };
   }
 
-  // async verifyToken(token: string, isAccessToken = true) {
-  //   const secret = isAccessToken
-  //     ? this.configService.get<IAuthConfig>('auth')?.accessToken.secret
-  //     : this.configService.get<IAuthConfig>('auth')?.refreshToken.secret;
+  async generateAccessToken(payload: IJwtPayload): Promise<string> {
+    return this.jwtService.signAsync(payload, {
+      secret: this.configService.get<IAuthConfig>('auth')?.accessToken.secret,
+      expiresIn: this.configService.get<IAuthConfig>('auth')?.accessToken.expiresIn,
+    });
+  }
 
-  //   if (!secret) {
-  //     throw new UnauthorizedError();
-  //   }
-
-  //   return this.jwtService.verifyAsync(token, { secret });
-  // }
+  async generateRefreshToken(payload: IJwtPayload): Promise<string> {
+    return this.jwtService.signAsync(payload, {
+      secret: this.configService.get<IAuthConfig>('auth')?.refreshToken.secret,
+      expiresIn: this.configService.get<IAuthConfig>('auth')?.refreshToken.expiresIn,
+    });
+  }
 }

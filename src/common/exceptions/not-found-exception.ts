@@ -1,8 +1,8 @@
 import { ERROR_MESSAGES } from '../constants/error-messages';
 
 export class NotFoundError extends Error {
-  constructor() {
-    super(ERROR_MESSAGES.NOT_FOUND);
+  constructor(message: string = ERROR_MESSAGES.NOT_FOUND) {
+    super(message);
     this.name = 'NotFoundError';
   }
 }

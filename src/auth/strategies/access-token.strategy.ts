@@ -1,8 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import { UnauthorizedError } from 'src/common/exceptions/unauthorized-exception copy';
 import { IAuthConfig } from 'src/config/auth.config';
 import { IAppConfig } from 'src/config/config.schema';
 import { User } from 'src/user/user.entity';
@@ -30,7 +29,7 @@ export class AccessTokenStrategy extends PassportStrategy(
     const user = await this.userService.findById(payload.sub);
 
     if (!user) {
-      throw new UnauthorizedError();
+      throw new UnauthorizedException();
     }
 
     return user;

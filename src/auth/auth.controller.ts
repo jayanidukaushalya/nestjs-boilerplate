@@ -6,8 +6,6 @@ import {
   HttpCode,
   HttpStatus,
   NotFoundException,
-  Param,
-  Patch,
   Post,
   Res,
   UseGuards,
@@ -17,7 +15,6 @@ import { ConfigService } from '@nestjs/config';
 import { ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 import { ERROR_MESSAGES } from 'src/common/constants/error-messages';
-import { FindByIdRequestParamDto } from 'src/common/dtos/find-by-id.dto';
 import { AlreadyExistsError } from 'src/common/exceptions/already-exists-exception';
 import { NotFoundError } from 'src/common/exceptions/not-found-exception';
 import { IAppConfig } from 'src/config/config.schema';
@@ -29,8 +26,10 @@ import { Public } from './decorators/public.decorator';
 import { ChangePasswordRequestBodyDto } from './dtos/change-password.dto';
 import { LoginRequestBodyDto } from './dtos/login-request.dto';
 import { LoginResponseDTO } from './dtos/login-response.dto';
+import { RefreshTokenResponseDto } from './dtos/refresh-token-response.dto';
 import { RegisterRequestDto } from './dtos/register-request.dto';
 import { LocalGuard } from './guards/local.guard';
+import { RefreshTokenGuard } from './guards/refresh-token.guard';
 
 @Controller('auth')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -46,10 +45,10 @@ export class AuthController {
   @UseGuards(LocalGuard)
   @HttpCode(HttpStatus.OK)
   async login(@Body() body: LoginRequestBodyDto, @CurrentUser() user: User, @Res() res: Response) {
-    const { accessToken, refreshToken } = await this.authService.generateTokens(
-      user.id,
-      user.username,
-    );
+    const { accessToken, refreshToken } = await this.authService.generateTokens({
+      sub: user.id,
+      username: user.username,
+    });
 
     res.cookie(REFRESH_TOKEN_KEY, refreshToken, {
       // 30 days
@@ -77,14 +76,27 @@ export class AuthController {
     }
   }
 
-  @Patch('/change-password/:id')
+  @Post('/refresh-token')
+  @Public()
+  @UseGuards(RefreshTokenGuard)
+  @HttpCode(HttpStatus.OK)
+  async refreshToken(@CurrentUser() user: User) {
+    const accessToken = await this.authService.generateAccessToken({
+      sub: user.id,
+      username: user.username,
+    });
+
+    return new RefreshTokenResponseDto({ accessToken });
+  }
+
+  @Post('/change-password')
   @HttpCode(HttpStatus.OK)
   async changePassword(
-    @Param() param: FindByIdRequestParamDto,
+    @CurrentUser() user: User,
     @Body() body: ChangePasswordRequestBodyDto,
   ): Promise<User> {
     try {
-      return await this.authService.changePassword(param.id, body);
+      return await this.authService.changePassword(user.id, body);
     } catch (error) {
       if (error instanceof NotFoundError) {
         throw new NotFoundException();
@@ -92,5 +104,13 @@ export class AuthController {
 
       throw error;
     }
+  }
+
+  @Post('/logout')
+  @UseGuards(RefreshTokenGuard)
+  @HttpCode(HttpStatus.OK)
+  logout(@CurrentUser() user: User, @Res() res: Response) {
+    res.clearCookie(REFRESH_TOKEN_KEY);
+    res.sendStatus(HttpStatus.OK);
   }
 }

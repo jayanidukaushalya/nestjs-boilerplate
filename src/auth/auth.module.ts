@@ -16,9 +16,9 @@ import { RefreshTokenStrategy } from './strategies/refresh-token.strategy';
   controllers: [AuthController],
   providers: [
     AuthService,
-    LocalStrategy,
     AccessTokenStrategy,
     RefreshTokenStrategy,
+    LocalStrategy,
     {
       provide: APP_GUARD,
       useClass: JWTAuthGuard,
