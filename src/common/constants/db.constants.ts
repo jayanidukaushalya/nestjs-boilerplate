@@ -1,0 +1,10 @@
+export enum ENTITY_STATUS {
+  ACTIVE = 'ACTIVE',
+  INACTIVE = 'INACTIVE',
+  DELETED = 'DELETED',
+}
+
+export enum AMOUNT_TYPE {
+  FIXED = 'FIXED',
+  PERCENTAGE = 'PERCENTAGE',
+}

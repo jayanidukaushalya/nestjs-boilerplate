@@ -1,41 +1,26 @@
-import { ApiHideProperty } from '@nestjs/swagger';
-import { Exclude } from 'class-transformer';
 import { ENTITY_STATUS } from 'src/common/constants/db.constants';
+import { Product } from 'src/product/product.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
 @Entity()
-export class User {
+export class UOM {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column({
     length: 20,
-    unique: true,
   })
-  username: string;
+  name: string;
 
-  @Column()
-  @Exclude()
-  @ApiHideProperty()
-  password: string;
-
-  @Column({
-    length: 60,
-    nullable: true,
-  })
-  firstName: string;
-
-  @Column({
-    length: 60,
-    nullable: true,
-  })
-  lastName: string;
+  @OneToMany(() => Product, (product) => product.uomId)
+  products: Product[];
 
   @Column({
     type: 'enum',
