@@ -8,7 +8,7 @@ import { authConfig } from './config/auth.config';
 import { appConfig } from './config/base.config';
 import { appConfigSchema, IAppConfig } from './config/config.schema';
 import { dbConfig } from './config/db.config';
-import { UserEntity } from './user/user.entity';
+import { User } from './user/user.entity';
 import { UserModule } from './user/user.module';
 
 @Module({
@@ -27,7 +27,7 @@ import { UserModule } from './user/user.module';
       inject: [ConfigService],
       useFactory: (configService: ConfigService<IAppConfig>) => ({
         ...configService.get<TypeOrmModuleOptions>('db'),
-        entities: [UserEntity],
+        entities: [User],
       }),
     }),
     AuthModule,

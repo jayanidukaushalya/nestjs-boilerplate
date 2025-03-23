@@ -1,6 +1,6 @@
 import { PickType } from '@nestjs/swagger';
 import { IsString, Length } from 'class-validator';
-import { RegisterRequestDto } from './register.dto';
+import { RegisterRequestDto } from './register-request.dto';
 
 export class ChangePasswordRequestBodyDto extends PickType(RegisterRequestDto, ['password']) {
   @IsString()

@@ -1,11 +1,18 @@
+import { ApiHideProperty } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
-import { BaseEntity } from 'src/common/entity/base.entity';
-import { Column, Entity } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
-@Entity({
-  name: 'user',
-})
-export class UserEntity extends BaseEntity {
+@Entity()
+export class User {
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
+
   @Column({
     length: 20,
     unique: true,
@@ -14,6 +21,7 @@ export class UserEntity extends BaseEntity {
 
   @Column()
   @Exclude()
+  @ApiHideProperty()
   password: string;
 
   @Column({
@@ -27,4 +35,10 @@ export class UserEntity extends BaseEntity {
     nullable: true,
   })
   lastName: string;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 }

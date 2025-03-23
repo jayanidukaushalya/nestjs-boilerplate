@@ -1,43 +1,41 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { AlreadyExistsError } from 'src/common/exceptions/already-exists-exception';
 import { NotFoundError } from 'src/common/exceptions/not-found-exception';
-import { UnauthorizedError } from 'src/common/exceptions/unauthorized-exception copy';
-import { UserEntity } from 'src/user/user.entity';
+import { IAuthConfig } from 'src/config/auth.config';
+import { IAppConfig } from 'src/config/config.schema';
+import { User } from 'src/user/user.entity';
 import { UserService } from 'src/user/user.service';
 import { Repository } from 'typeorm';
 import { ChangePasswordRequestBodyDto } from './dtos/change-password.dto';
-import { LoginRequestBodyDto } from './dtos/login.dto';
-import { RegisterRequestDto } from './dtos/register.dto';
+import { LoginRequestBodyDto } from './dtos/login-request.dto';
+import { RegisterRequestDto } from './dtos/register-request.dto';
+import { IJwtPayload } from './types/jwt-payload.types';
 
 @Injectable()
 export class AuthService {
   constructor(
+    private readonly configService: ConfigService<IAppConfig>,
+    private jwtService: JwtService,
     private readonly userService: UserService,
-    @InjectRepository(UserEntity) private readonly userRepo: Repository<UserEntity>,
+    @InjectRepository(User) private readonly userRepo: Repository<User>,
   ) {}
 
-  async login(body: LoginRequestBodyDto) {
+  async login(body: LoginRequestBodyDto): Promise<User | null> {
     const user = await this.userService.findUserByUsername(body.username);
 
-    if (!user) {
-      throw new UnauthorizedError();
-    }
-
-    if (!(await this.comparePassword(body.password, user.password))) {
-      throw new UnauthorizedError();
-    }
+    if (!user || !(await this.comparePassword(body.password, user.password))) return null;
 
     return user;
   }
 
-  async register(body: RegisterRequestDto) {
+  async register(body: RegisterRequestDto): Promise<User> {
     let user = await this.userService.findUserByUsername(body.username);
 
-    if (user) {
-      throw new AlreadyExistsError();
-    }
+    if (user) throw new AlreadyExistsError();
 
     const hashedPassword = await this.hashPassword(body.password);
     body.password = hashedPassword;
@@ -46,12 +44,10 @@ export class AuthService {
     return this.userRepo.save(user);
   }
 
-  async changePassword(id: string, body: ChangePasswordRequestBodyDto) {
+  async changePassword(id: string, body: ChangePasswordRequestBodyDto): Promise<User> {
     const user = await this.userService.findById(id);
 
-    if (!user) {
-      throw new NotFoundError();
-    }
+    if (!user) throw new NotFoundError();
 
     const hashedPassword = await this.hashPassword(body.password);
     user.password = hashedPassword;
@@ -59,11 +55,43 @@ export class AuthService {
     return this.userRepo.save(user);
   }
 
-  private async hashPassword(password: string) {
+  private async hashPassword(password: string): Promise<string> {
     return bcrypt.hash(password, 10);
   }
 
-  private async comparePassword(password: string, hash: string) {
+  private async comparePassword(password: string, hash: string): Promise<boolean> {
     return bcrypt.compare(password, hash);
   }
+
+  async generateTokens(
+    id: string,
+    username: string,
+  ): Promise<{ accessToken: string; refreshToken: string }> {
+    const payload: IJwtPayload = { sub: id, username };
+
+    const [accessToken, refreshToken] = await Promise.all([
+      this.jwtService.signAsync(payload, {
+        secret: this.configService.get<IAuthConfig>('auth')?.accessToken.secret,
+        expiresIn: this.configService.get<IAuthConfig>('auth')?.accessToken.expiresIn,
+      }),
+      this.jwtService.signAsync(payload, {
+        secret: this.configService.get<IAuthConfig>('auth')?.refreshToken.secret,
+        expiresIn: this.configService.get<IAuthConfig>('auth')?.refreshToken.expiresIn,
+      }),
+    ]);
+
+    return { accessToken, refreshToken };
+  }
+
+  // async verifyToken(token: string, isAccessToken = true) {
+  //   const secret = isAccessToken
+  //     ? this.configService.get<IAuthConfig>('auth')?.accessToken.secret
+  //     : this.configService.get<IAuthConfig>('auth')?.refreshToken.secret;
+
+  //   if (!secret) {
+  //     throw new UnauthorizedError();
+  //   }
+
+  //   return this.jwtService.verifyAsync(token, { secret });
+  // }
 }

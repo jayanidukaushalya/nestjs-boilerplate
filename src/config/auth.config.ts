@@ -15,12 +15,12 @@ export const authConfig = registerAs(
   'auth',
   (): IAuthConfig => ({
     accessToken: {
-      secret: process.env.JWT_SECRET as string,
-      expiresIn: process.env.JWT_EXPIRES_IN ?? '60m',
+      secret: process.env.ACCESS_TOKEN_SECRET as string,
+      expiresIn: process.env.ACCESS_TOKEN_EXPIRES_IN ?? '60m',
     },
     refreshToken: {
-      secret: process.env.JWT_SECRET as string,
-      expiresIn: process.env.JWT_EXPIRES_IN ?? '30d',
+      secret: process.env.REFRESH_TOKEN_SECRET as string,
+      expiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN ?? '30d',
     },
   }),
 );
