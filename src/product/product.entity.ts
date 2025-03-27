@@ -25,6 +25,7 @@ export class Product {
 
   @Column({
     length: 60,
+    nullable: true,
   })
   model: string;
 
@@ -40,7 +41,7 @@ export class Product {
   @ManyToOne(() => Brand, (brand) => brand.products)
   brand: Brand;
 
-  @Column({ name: 'uom_id', type: 'uuid', nullable: true })
+  @Column({ name: 'uom_id', type: 'uuid' })
   uomId: string;
 
   @ManyToOne(() => UOM, (uom) => uom.products)
