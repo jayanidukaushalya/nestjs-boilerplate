@@ -40,7 +40,7 @@ export class AuthController {
     private readonly configService: ConfigService<IAppConfig>,
   ) {}
 
-  @Post('/login')
+  @Post('login')
   @Public()
   @UseGuards(LocalGuard)
   @HttpCode(HttpStatus.OK)
@@ -63,7 +63,7 @@ export class AuthController {
     res.json(new LoginResponseDTO({ accessToken }));
   }
 
-  @Post('/register')
+  @Post('register')
   @HttpCode(HttpStatus.CREATED)
   async register(@Body() body: RegisterRequestDto): Promise<User> {
     try {
@@ -77,7 +77,7 @@ export class AuthController {
     }
   }
 
-  @Post('/refresh-token')
+  @Post('refresh-token')
   @Public()
   @UseGuards(RefreshTokenGuard)
   @HttpCode(HttpStatus.OK)
@@ -90,7 +90,7 @@ export class AuthController {
     return new RefreshTokenResponseDto({ accessToken });
   }
 
-  @Post('/change-password')
+  @Post('change-password')
   @HttpCode(HttpStatus.OK)
   async changePassword(
     @CurrentUser() user: User,
@@ -107,7 +107,7 @@ export class AuthController {
     }
   }
 
-  @Post('/logout')
+  @Post('logout')
   @UseGuards(RefreshTokenGuard)
   @HttpCode(HttpStatus.OK)
   logout(@CurrentUser() user: User, @Res() res: Response) {
