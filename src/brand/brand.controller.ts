@@ -12,10 +12,10 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-import { NotFoundError } from 'rxjs';
 import { ERROR_MESSAGES } from 'src/common/constants/error-messages.constants';
 import { FindByIdRequestParamDto } from 'src/common/dtos/find-by-id.dto';
 import { AlreadyExistsError } from 'src/common/exceptions/already-exists.exception';
+import { NotFoundError } from 'src/common/exceptions/not-found.exception';
 import { IPaginatedResponseDTO } from 'src/common/types/response.types';
 import { Brand } from './brand.entity';
 import { BrandService } from './brand.service';

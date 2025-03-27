@@ -64,9 +64,9 @@ export class BrandService {
     return this.brandRepo.save(brand);
   }
 
-  async delete(id: string) {
+  async delete(id: string): Promise<void> {
     const brand = await this.findById(id);
     brand.status = ENTITY_STATUS.DELETED;
-    return this.brandRepo.save(brand);
+    await this.brandRepo.save(brand);
   }
 }

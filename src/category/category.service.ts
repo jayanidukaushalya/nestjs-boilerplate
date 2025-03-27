@@ -65,9 +65,9 @@ export class CategoryService {
     return this.categoryRepo.save(category);
   }
 
-  async delete(id: string) {
+  async delete(id: string): Promise<void> {
     const category = await this.findById(id);
     category.status = ENTITY_STATUS.DELETED;
-    return this.categoryRepo.save(category);
+    await this.categoryRepo.save(category);
   }
 }

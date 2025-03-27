@@ -17,21 +17,19 @@ import { FindByIdRequestParamDto } from 'src/common/dtos/find-by-id.dto';
 import { AlreadyExistsError } from 'src/common/exceptions/already-exists.exception';
 import { NotFoundError } from 'src/common/exceptions/not-found.exception';
 import { IPaginatedResponseDTO } from 'src/common/types/response.types';
-import { Category } from './category.entity';
-import { CategoryService } from './category.service';
-import { CreateCategoryRequestDto } from './dtos/create-category-request.dto';
-import { FindAllCategoriesRequestDto } from './dtos/find-all-categories-request.dto';
+import { CreateUomRequestDto } from './dtos/create-uom-request.dto';
+import { FindAllUomRequestDto } from './dtos/find-all-uom-request.dto';
+import { UOM } from './uom.entity';
+import { UomService } from './uom.service';
 
-@Controller('category')
-export class CategoryController {
-  constructor(private readonly categoryService: CategoryService) {}
+@Controller('uom')
+export class UomController {
+  constructor(private readonly uomService: UomService) {}
 
   @Get()
   @HttpCode(HttpStatus.OK)
-  async findAll(
-    @Query() query: FindAllCategoriesRequestDto,
-  ): Promise<IPaginatedResponseDTO<Category>> {
-    const [categories, total] = await this.categoryService.findAll(query);
+  async findAll(@Query() query: FindAllUomRequestDto): Promise<IPaginatedResponseDTO<UOM>> {
+    const [categories, total] = await this.uomService.findAll(query);
 
     return {
       results: categories,
@@ -45,9 +43,9 @@ export class CategoryController {
 
   @Get(':id')
   @HttpCode(HttpStatus.OK)
-  async findById(@Param() param: FindByIdRequestParamDto): Promise<Category> {
+  async findById(@Param() param: FindByIdRequestParamDto): Promise<UOM> {
     try {
-      return await this.categoryService.findById(param.id);
+      return await this.uomService.findById(param.id);
     } catch (error) {
       if (error instanceof NotFoundError) {
         throw new NotFoundException();
@@ -59,9 +57,9 @@ export class CategoryController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  async create(@Body() body: CreateCategoryRequestDto): Promise<Category> {
+  async create(@Body() body: CreateUomRequestDto): Promise<UOM> {
     try {
-      return await this.categoryService.create(body);
+      return await this.uomService.create(body);
     } catch (error) {
       if (error instanceof AlreadyExistsError) {
         throw new ConflictException(ERROR_MESSAGES.ALREADY_EXISTS);
@@ -75,10 +73,10 @@ export class CategoryController {
   @HttpCode(HttpStatus.OK)
   async update(
     @Param() param: FindByIdRequestParamDto,
-    @Body() body: CreateCategoryRequestDto,
-  ): Promise<Category> {
+    @Body() body: CreateUomRequestDto,
+  ): Promise<UOM> {
     try {
-      return await this.categoryService.update(param.id, body);
+      return await this.uomService.update(param.id, body);
     } catch (error) {
       if (error instanceof NotFoundError) {
         throw new NotFoundException();
@@ -94,7 +92,7 @@ export class CategoryController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async delete(@Param() param: FindByIdRequestParamDto): Promise<void> {
     try {
-      await this.categoryService.delete(param.id);
+      await this.uomService.delete(param.id);
     } catch (error) {
       if (error instanceof NotFoundError) {
         throw new NotFoundException();
