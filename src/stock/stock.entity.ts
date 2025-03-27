@@ -15,6 +15,7 @@ export class Stock {
   id: string;
 
   @Column({
+    name: 'selling_price',
     type: 'numeric',
     precision: 10,
     scale: 2,
@@ -22,6 +23,7 @@ export class Stock {
   sellingPrice: number;
 
   @Column({
+    name: 'max_discount',
     type: 'numeric',
     precision: 10,
     scale: 2,
@@ -30,6 +32,7 @@ export class Stock {
   maxDiscount: number;
 
   @Column({
+    name: 'max_discount_type',
     type: 'enum',
     enum: AMOUNT_TYPE,
     default: AMOUNT_TYPE.PERCENTAGE,
@@ -37,11 +40,13 @@ export class Stock {
   maxDiscountType: AMOUNT_TYPE;
 
   @Column({
+    name: 'available_qty',
     type: 'int',
   })
   availableQty: number;
 
   @Column({
+    name: 'product_id',
     type: 'uuid',
   })
   productId: string;
@@ -56,9 +61,13 @@ export class Stock {
   })
   status: ENTITY_STATUS;
 
-  @CreateDateColumn()
+  @CreateDateColumn({
+    name: 'created_at',
+  })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({
+    name: 'updated_at',
+  })
   updatedAt: Date;
 }

@@ -1,10 +1,6 @@
 import { registerAs } from '@nestjs/config';
 import { VERSION } from 'src/common/version';
-
-export interface IBaseConfig {
-  version: string;
-  env: string;
-}
+import { IBaseConfig } from './config.types';
 
 export const appConfig = registerAs(
   'base',

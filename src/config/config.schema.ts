@@ -1,13 +1,4 @@
-import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import * as Joi from 'joi';
-import { IAuthConfig } from './auth.config';
-import { IBaseConfig } from './base.config';
-
-export interface IAppConfig {
-  base: IBaseConfig;
-  db: TypeOrmModuleOptions;
-  auth: IAuthConfig;
-}
 
 export const appConfigSchema = Joi.object({
   APP_PORT: Joi.number().required(),

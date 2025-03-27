@@ -28,19 +28,19 @@ export class Product {
   })
   model: string;
 
-  @Column({ type: 'uuid', nullable: true })
+  @Column({ name: 'category_id', type: 'uuid', nullable: true })
   categoryId: string;
 
   @ManyToOne(() => Category, (category) => category.products)
   category: Category;
 
-  @Column({ type: 'uuid', nullable: true })
+  @Column({ name: 'brand_id', type: 'uuid', nullable: true })
   brandId: string;
 
   @ManyToOne(() => Brand, (brand) => brand.products)
   brand: Brand;
 
-  @Column({ type: 'uuid', nullable: true })
+  @Column({ name: 'uom_id', type: 'uuid', nullable: true })
   uomId: string;
 
   @ManyToOne(() => UOM, (uom) => uom.products)
@@ -56,9 +56,13 @@ export class Product {
   })
   status: ENTITY_STATUS;
 
-  @CreateDateColumn()
+  @CreateDateColumn({
+    name: 'created_at',
+  })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({
+    name: 'updated_at',
+  })
   updatedAt: Date;
 }

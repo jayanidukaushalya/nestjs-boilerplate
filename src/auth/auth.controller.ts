@@ -12,12 +12,12 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 import { ERROR_MESSAGES } from 'src/common/constants/error-messages.constants';
 import { AlreadyExistsError } from 'src/common/exceptions/already-exists.exception';
 import { NotFoundError } from 'src/common/exceptions/not-found.exception';
-import { IAppConfig } from 'src/config';
+import { IAppConfig } from 'src/config/config.types';
 import { User } from 'src/user/user.entity';
 import { AuthService } from './auth.service';
 import { REFRESH_TOKEN_KEY } from './constants';
@@ -44,6 +44,7 @@ export class AuthController {
   @Public()
   @UseGuards(LocalGuard)
   @HttpCode(HttpStatus.OK)
+  @ApiResponse({ type: User })
   async login(@Body() body: LoginRequestBodyDto, @CurrentUser() user: User, @Res() res: Response) {
     const { accessToken, refreshToken } = await this.authService.generateTokens({
       sub: user.id,
